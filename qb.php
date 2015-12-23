@@ -233,6 +233,21 @@ class QuickBibleCli{
 		return $s;
 	}
 
+
+	public function outputVerse($t){
+	       $t = str_replace('\\emdash', '--', $t);
+
+	       if (isset($this->options['color'])){
+	       	  echo $this->printColorArray( $this->colorize($t) );
+	       }else if (isset($this->options['raw'])){
+	       	  echo $t;
+	       }else{
+	       	  $t = preg_replace('/({\\\\[\w+\\\\]+ )|(})/i', '', $t);
+	       	  echo $t;
+	       }
+	}
+
+
 	public function searchBible(){
 		
 
@@ -268,20 +283,12 @@ class QuickBibleCli{
 			       //echo self::getAbbr($row['b']).' '.$row['c'].':'.$row['v'].' ';
 			       echo $row['v'].' ';
 
-			       $row['t'] = str_replace('\\emdash', '--', $row['t']);
-
-			       if (isset($this->options['color'])){
-			       	  echo $this->printColorArray( $this->colorize($row['t']) );
-			       }else if (isset($this->options['raw'])){
-			       	  echo $row['t'];
-			       }else{
-			       	  $t = preg_replace('/({\\\\[\w+\\\\]+ )|(})/i', '', $row['t']);
-			       	  echo $t;
-			       }
+			       $this->outputVerse($row['t']);
 			       
 			       echo "\n";
 			       $count++;
 			    }
+			    //echo $count.' bible verses found.';
 		    	return;
 			} 
 
@@ -297,19 +304,13 @@ class QuickBibleCli{
 		    while($row = $prep->fetch(PDO::FETCH_ASSOC)){
 		       //echo $count.'. ';
 		       echo self::getAbbr($row['b']).' '.$row['c'].':'.$row['v'].' ';
-		       $row['t'] = str_replace('\\emdash', '--', $row['t']);
 
-		       if (isset($this->options['color'])){
-		       	  echo $this->printColorArray( $this->colorize($row['t']) );
-		       }else if (isset($this->options['raw'])){
-		       	  echo $row['t'];
-		       }else{
-		       	  $t = preg_replace('/({\\\\[\w+\\\\]+ )|(})/i', '', $row['t']);
-		       	  echo $t;
-			   }
+		       $this->outputVerse($row['t']);
+
 		       echo "\n";
 		       $count++;
 		    }
+		    echo $count." bible verses found.";
 		}else{
 			$sql = 'SELECT * FROM bible_info LIMIT 1';
 			$prep = $dbh->prepare($sql);
