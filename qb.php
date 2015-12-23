@@ -310,7 +310,7 @@ class QuickBibleCli{
 		       echo "\n";
 		       $count++;
 		    }
-		    echo $count." bible verses found.";
+		    echo $count." bible verses found.\n";
 		}else{
 			$sql = 'SELECT * FROM bible_info LIMIT 1';
 			$prep = $dbh->prepare($sql);
