@@ -6,7 +6,13 @@ if (!$qb->parseCli()){
 	$qb->simpleParseCli();
 }
 
-$qb->validateBible();
+try{
+	$qb->validateBible();
+}catch(Exception $e){
+	echo $e->getMessage();
+	exit;
+}
+
 $qb->searchBible();
 
 //scroll down for class
@@ -115,10 +121,11 @@ class QuickBibleCli{
 		$bible_path = $this->base_dir.'/'.$this->bible.'.bible.sqlite3';
 
 		if (!file_exists($bible_path)){
-			throw new Excception($this->bible.' does not exist in this path: '.$this->base_dir);
+			throw new Exception($this->bible.' does not exist in this path: '.$this->base_dir);
 		}
 
 		$this->bible_path = $bible_path;
+		return true;
 	}
 
 	public function colorize($text){
