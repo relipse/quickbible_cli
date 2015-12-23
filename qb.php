@@ -79,7 +79,9 @@ class QuickBibleCli{
 		);
 
 		$options = getopt($shortopts, $longopts);
+
 		if (empty($options)){
+			$this->options = array('q'=>'');
 			return false;
 		}
 
@@ -114,7 +116,8 @@ class QuickBibleCli{
 
 	public function showHelp(){
 		global $argv;
-		echo "Usage: php ".$argv[0].' kjvr Jesus wept';
+		echo "Usage: php ".$argv[0].' kjvr Jesus wept'."\n";
+		echo "Usage: qb kjvr Jesus wept \n";
 	}
 
 	public function validateBible(){
@@ -294,7 +297,16 @@ class QuickBibleCli{
 		    while($row = $prep->fetch(PDO::FETCH_ASSOC)){
 		       //echo $count.'. ';
 		       echo self::getAbbr($row['b']).' '.$row['c'].':'.$row['v'].' ';
-		       echo $this->printColorArray( $this->colorize($row['t']) );
+		       $row['t'] = str_replace('\\emdash', '--', $row['t']);
+
+		       if (isset($this->options['color'])){
+		       	  echo $this->printColorArray( $this->colorize($row['t']) );
+		       }else if (isset($this->options['raw'])){
+		       	  echo $row['t'];
+		       }else{
+		       	  $t = preg_replace('/({\\\\[\w+\\\\]+ )|(})/i', '', $row['t']);
+		       	  echo $t;
+			   }
 		       echo "\n";
 		       $count++;
 		    }
