@@ -10,7 +10,7 @@ Array
     [format] => rtf
     [strongs] => 0
 )
-$ ./qb kjvr Jesus Wept
+$ qb kjvr Jesus Wept
 Joh 11:35 Jesus wept.
 
 $ qb kjvr Psa 1
