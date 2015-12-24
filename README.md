@@ -27,7 +27,7 @@ $ qb kjvr Joh 14:6
 ```
 
 Prerequisites
- 1. PHP 
+ 1. PHP with pdo_sqlite mod enabled (Windows: in php.ini add extension=ext/php_pdo_sqlite.dll) 
  2. On Windows: Git Bash for Windows (mingw might work)
 
 Instructions on Windows:
