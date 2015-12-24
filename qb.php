@@ -2,9 +2,13 @@
 
 $qb = new QuickBibleCli();
 
+$qb->getLastOptions();
+
 if (!$qb->parseCli()){
 	$qb->simpleParseCli();
 }
+
+$qb->putOptions();
 
 try{
 	$qb->validateBible();
@@ -38,6 +42,7 @@ class QuickBibleCli{
 	protected $bible;
 	protected $options = array('q'=>'');
 	protected $bible_path = '';
+	protected $cfg_file = '';
 
 	public function __construct(){
 		//defaults
@@ -45,22 +50,48 @@ class QuickBibleCli{
 		$this->bible = 'kjvr';
 	}
 
+	public function getLastOptions(){
+		if (!$this->cfg_file){
+			$this->cfg_file = __DIR__ .'/qb.cfg.json';
+		}
+		if (!file_exists($this->cfg_file)){
+			return false;
+		}
+
+		$this->options = json_decode(file_get_contents($this->cfg_file), true);
+		return true;
+	}
+
+	public function putOptions($options = null){
+		if (!$this->cfg_file){
+			$this->cfg_file = __DIR__ .'/qb.cfg.json';
+		}
+
+		if (empty($options)){ $options = $this->options; }
+		
+		file_put_contents($this->cfg_file, json_encode($options));	
+		return true;
+	}
+
 	public function simpleParseCli(){
 		global $argv;
 		//qb <bible> <search-query>
-		if (isset($argv[1])){
+		if ( isset($argv[1]) && file_exists($this->base_dir.'/'.$argv[1].'.bible.sqlite3') ){
 			$this->bible = $argv[1];
+			$this->options['bible'] = $argv[1];
+			$start = 2;
+		}else{
+			$start = 1;
 		}
 
-		if (isset($argv[2])){
+		if (isset($argv[$start])){
 			//conjoin all parameters into one
-			for($i = 2; $i < count($argv); ++$i){
-				if ($i > 2){
+			for($i = $start; $i < count($argv); ++$i){
+				if ($i > $start){
 					$this->options['q'] .= ' ';
 				}
 				$this->options['q'] .= $argv[$i];
 			}
-			
 		}
 	}
 
@@ -101,6 +132,7 @@ class QuickBibleCli{
 
 		if (isset($bible)){
 			$this->bible = $bible;
+			$this->options['bible'] = $bible;
 		}
 
 		if (isset($base_dir)){
@@ -310,7 +342,7 @@ class QuickBibleCli{
 		       echo "\n";
 		       $count++;
 		    }
-		    echo $count." bible verses found.\n";
+		    echo ($count-1)." bible verses found.\n";
 		}else{
 			$sql = 'SELECT * FROM bible_info LIMIT 1';
 			$prep = $dbh->prepare($sql);
