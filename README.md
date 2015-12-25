@@ -37,9 +37,9 @@ Further Instructions
  1. You may copy everything to the /usr/bin/ directory so you may use qb from the command line 
 
 Usage:
-qb kjv Jesus Wept
-qb kjv Joh 3:16
-qb kjv
+```qb Jesus Wept```
+```qb Joh 3:16```
+```qb```
 
 
 
