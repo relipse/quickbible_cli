@@ -17,9 +17,16 @@ try{
 	exit;
 }
 
-$qb->searchBible();
+$qb->determinePath();
 
-//scroll down for class
+
+
+
+
+
+
+
+
 
 
 
@@ -281,13 +288,7 @@ class QuickBibleCli{
 	}
 
 
-	public function searchBible(){
-		
-
-		$dbh = new PDO('sqlite:'.$this->bible_path);
-
-
-		if (isset($this->options['r'])){
+  public function getRandomChapter($dbh){
 			$b = rand(1,66);
 			$this->options['q'] = $this->getAbbr($b).' ';
 			$prep = $dbh->prepare('SELECT MAX(c) FROM bible_verses WHERE b = :book');
@@ -295,12 +296,10 @@ class QuickBibleCli{
 			$max_c = $prep->fetchColumn();
 			$c = rand(1, $max_c);
 			$this->options['q'] .= $c;
-			echo $this->options['q']."\n";
-		}
+	}
 
-		if (!empty($this->options['q'])){
-			if (preg_match('/([\da-z][a-z][a-z]) (\d+):?(\d+)?\-?(\d+)?/i', $this->options['q'], $regs)) {
-				$bk = $regs[1];
+  public function referenceLookup($dbh, $regs){
+      	$bk = $regs[1];
 				$ch = $regs[2];
 				$vs_min = isset($regs[3]) ? $regs[3] : null;
 				$vs_max = isset($regs[4]) ? $regs[4] : null;
@@ -335,10 +334,9 @@ class QuickBibleCli{
 			    }
 			    //echo $count.' bible verses found.';
 		    	return;
-			} 
+	}
 
-			
-
+	public function search($dbh){
 
 			$sql = 'SELECT * FROM bible_verses WHERE t LIKE :search';
 			$ary = array('search'=>'%'.$this->options['q'].'%');
@@ -356,14 +354,41 @@ class QuickBibleCli{
 		       $count++;
 		    }
 		    echo ($count-1)." bible verses found.\n";
-		}else{
+	}
+
+  public function showInfo($dbh){
 			$sql = 'SELECT * FROM bible_info LIMIT 1';
 			$prep = $dbh->prepare($sql);
 			$prep->execute(array());
 			$info = $prep->fetch(PDO::FETCH_ASSOC);
 
 			print_r($info);
+			echo "Books of the Bible: ";
+			echo implode(',', array_keys(self::$bible_abbr_to_number));
+			echo "\n";	
+	}
+
+	public function determinePath(){
+		
+
+		$dbh = new PDO('sqlite:'.$this->bible_path);
+
+
+		if (isset($this->options['r'])){
+			$this->getRandomChapter($dbh);
+			echo $this->options['q']."\n";
 		}
+
+		if (!empty($this->options['q'])){
+			if (preg_match('/([\da-z][a-z][a-z]) (\d+):?(\d+)?\-?(\d+)?/i', $this->options['q'], $regs)) {
+				$this->referenceLookup($dbh, $regs);	
+			}else{
+				$this->search($dbh);
+			}
+
+	  }else{
+	    $this->showInfo($dbh);
+    }
 
 	}
 
