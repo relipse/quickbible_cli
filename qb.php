@@ -406,7 +406,7 @@ class QuickBibleCli{
 		}
 
 		if (!empty($this->options['q'])){
-			if (preg_match('/([\da-z][a-z][a-z]) (\d+):?(\d+)?\-?(\d+)?/i', $this->options['q'], $regs)) {
+			if (preg_match('/([\da-z][a-z][a-z])[a-z]* (\d+):?(\d+)?\-?(\d+)?/i', $this->options['q'], $regs)) {
 				$this->referenceLookup($dbh, $regs);	
 			}else{
 				$this->search($dbh);
