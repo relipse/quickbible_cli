@@ -99,6 +99,7 @@ class QuickBibleCli{
 		$shortopts  = "q::"; //query string
 		$shortopts .= "b::";  // Bible (optional) value
 		$shortopts .= "d::"; // Base Dir (optional) value
+		$shortopts .= "r"; //random chapter
 		$shortopts .= 'h';  //help
 
 		$longopts  = array(
@@ -284,6 +285,18 @@ class QuickBibleCli{
 		
 
 		$dbh = new PDO('sqlite:'.$this->bible_path);
+
+
+		if (isset($this->options['r'])){
+			$b = rand(1,66);
+			$this->options['q'] = $this->getAbbr($b).' ';
+			$prep = $dbh->prepare('SELECT MAX(c) FROM bible_verses WHERE b = :book');
+			$prep->execute(array('book'=>$b));
+			$max_c = $prep->fetchColumn();
+			$c = rand(1, $max_c);
+			$this->options['q'] .= $c;
+			echo $this->options['q']."\n";
+		}
 
 		if (!empty($this->options['q'])){
 			if (preg_match('/([\da-z][a-z][a-z]) (\d+):?(\d+)?\-?(\d+)?/i', $this->options['q'], $regs)) {
