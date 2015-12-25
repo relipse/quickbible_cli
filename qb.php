@@ -4,7 +4,9 @@ $qb = new QuickBibleCli();
 
 $qb->getLastOptions();
 
-if (!$qb->parseCli()){
+$qb->parseCli();
+
+if ($qb->getQuery() == ""){
 	$qb->simpleParseCli();
 }
 
@@ -51,6 +53,13 @@ class QuickBibleCli{
 	protected $bible_path = '';
 	protected $cfg_file = '';
 
+  public function getQuery(){
+		if (!isset($this->options['q'])){
+			$this->options['q'] = '';
+		}
+		return $this->options['q'];
+	}
+
 	public function __construct(){
 		//defaults
 		$this->base_dir = __DIR__.'/bibles'; //"C:\Program Files (x86)\QuickBible\Bibles";
@@ -94,6 +103,9 @@ class QuickBibleCli{
 		if (isset($argv[$start])){
 			//conjoin all parameters into one
 			for($i = $start; $i < count($argv); ++$i){
+				if ($argv[$i]{0} == '-'){
+					continue;
+				}
 				if ($i > $start){
 					$this->options['q'] .= ' ';
 				}
@@ -107,6 +119,7 @@ class QuickBibleCli{
 		$shortopts .= "b::";  // Bible (optional) value
 		$shortopts .= "d::"; // Base Dir (optional) value
 		$shortopts .= "r"; //random chapter
+		$shortopts .= "v"; //verbose/debug
 		$shortopts .= 'h';  //help
 
 		$longopts  = array(
@@ -114,10 +127,16 @@ class QuickBibleCli{
 		    "bible::",        // optional value
 		    "color",           // show colors
 		    "raw",          //show raw text (including rtf characters)
+				"nnl",          //no newlines
+				"nv",           //no verse numbers
 		    "help",         //show help
 		);
 
 		$options = getopt($shortopts, $longopts);
+
+		if (isset($options['v'])){
+			print_r($options);
+		}
 
 		if (empty($options)){
 			$this->options = array('q'=>'');
@@ -325,13 +344,20 @@ class QuickBibleCli{
 			    while($row = $prep->fetch(PDO::FETCH_ASSOC)){
 			       //echo $count.'. ';
 			       //echo self::getAbbr($row['b']).' '.$row['c'].':'.$row['v'].' ';
-			       echo $row['v'].' ';
+			       if (!isset($this->options['nv'])){
+						  	echo $row['v'].' ';
+						 }
 
 			       $this->outputVerse($row['t']);
-			       
-			       echo "\n";
+		
+						 if (!isset($this->options['nnl'])){
+			       		echo "\n";
+						 }
 			       $count++;
 			    }
+					if (isset($this->options['nnl'])){
+						echo "\n";
+					}
 			    //echo $count.' bible verses found.';
 		    	return;
 	}
