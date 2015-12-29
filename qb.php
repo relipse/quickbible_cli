@@ -46,6 +46,7 @@ $qb->determinePath();
 
 
 
+
 class QuickBibleCli{
 	protected $base_dir;
 	protected $bible;
@@ -106,7 +107,7 @@ class QuickBibleCli{
 				if ($argv[$i]{0} == '-'){
 					continue;
 				}
-				if ($i > $start){
+				if ($this->options['q'] != ''){
 					$this->options['q'] .= ' ';
 				}
 				$this->options['q'] .= $argv[$i];
