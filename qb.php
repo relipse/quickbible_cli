@@ -130,6 +130,7 @@ class QuickBibleCli{
 		    "raw",          //show raw text (including rtf characters)
 				"nnl",          //no newlines
 				"nv",           //no verse numbers
+            "rv",           //random verse
 		    "help",         //show help
 		);
 
@@ -307,8 +308,11 @@ class QuickBibleCli{
 	       }
 	}
 
+    public function getRandomVerse($dbh){
+        $this->getRandomChapter($dbh, true);
+    }
 
-  public function getRandomChapter($dbh){
+  public function getRandomChapter($dbh, bool $random_verse = false){
 			$b = rand(1,66);
 			$this->options['q'] = $this->getAbbr($b).' ';
 			$prep = $dbh->prepare('SELECT MAX(c) FROM bible_verses WHERE b = :book');
@@ -316,6 +320,16 @@ class QuickBibleCli{
 			$max_c = $prep->fetchColumn();
 			$c = rand(1, $max_c);
 			$this->options['q'] .= $c;
+
+            if ($random_verse) {
+                $prep = $dbh->prepare('SELECT MAX(v) FROM bible_verses WHERE b = :book AND c = :chapter ');
+                $prep->execute(['book' => $b, 'chapter' => $c]);
+                $max_v = $prep->fetchColumn();
+                $v = rand(1, $max_v);
+                $this->options['q'] .= ':'.$v;
+                $this->options['nv'] = true;
+                $this->options['nnl'] = true;
+            }
 	}
 
   public function referenceLookup($dbh, $regs){
@@ -356,7 +370,7 @@ class QuickBibleCli{
 						 }
 			       $count++;
 			    }
-					if (isset($this->options['nnl'])){
+					if (!isset($this->options['nnl'])){
 						echo "\n";
 					}
 			    //echo $count.' bible verses found.';
@@ -405,6 +419,18 @@ class QuickBibleCli{
 			$this->getRandomChapter($dbh);
 			echo $this->options['q']."\n";
 		}
+
+        if (isset($this->options['rv'])){
+            $this->getRandomVerse($dbh);
+
+            echo $this->options['q'];
+
+            if (!isset($this->options['nnl'])){
+                echo "\n";
+            }else{
+                echo " ";
+            }
+        }
 
 		if (!empty($this->options['q'])){
 			if (preg_match('/([\da-z][a-z][a-z])[a-z]* (\d+):?(\d+)?\-?(\d+)?/i', $this->options['q'], $regs)) {
