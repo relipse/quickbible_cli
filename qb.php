@@ -104,7 +104,7 @@ class QuickBibleCli{
 		if (isset($argv[$start])){
 			//conjoin all parameters into one
 			for($i = $start; $i < count($argv); ++$i){
-				if ($argv[$i]{0} == '-'){
+				if ($argv[$i][0] == '-'){
 					continue;
 				}
 				if ($this->options['q'] != ''){
@@ -199,41 +199,41 @@ class QuickBibleCli{
 
 		$len = strlen($text);
 		for ($i = 0; $i < $len; ++$i){
-			if ($color == 'white' && $text{$i} == ' '){
+			if ($color == 'white' && $text[$i] == ' '){
 				$color = 'gray';
 				$segment++;
 			}
 			if ($i + 1 < $len){
-				$lookahead = $text{$i+1};
+				$lookahead = $text[$i+1];
 			}else{
 				$lookahead = null;
 			}
 
 		    if ($i + 2 < $len){
-				$lookahead2 = $text{$i+2};
+				$lookahead2 = $text[$i+2];;
 			}else{
 				$lookahead2 = null;
 			}
 
 			if ($i + 3 < $len){
-				$lookahead3 = $text{$i+3};
+				$lookahead3 = $text[$i+3];
 			}else{
 				$lookahead3 = null;
 			}
 
 		    if ($i + 4 < $len){
-				$lookahead4 = $text{$i+4};
+				$lookahead4 = $text[$i+4];;
 			}else{
 				$lookahead4 = null;
 			}
 
 		    if ($i + 5 < $len){
-				$lookahead5 = $text{$i+5};
+				$lookahead5 = $text[$i+5];
 			}else{
 				$lookahead5 = null;
 			}
 
-			switch($text{$i}){
+			switch($text[$i]){
 				case '{':
 				if ($lookahead == '\\' && $lookahead2 == 'c' && $lookahead3 == 'f' &&
 				    $lookahead4 == '6' && $lookahead5 == ' '){
@@ -243,7 +243,7 @@ class QuickBibleCli{
 						$segment++;
 					}
 					$i += 5;
-					continue;
+					continue 2;
 					
 				}else if ($lookahead == '\\' && $lookahead2 == 'c' && $lookahead3 == 'f' &&
 				          $lookahead4 == '1' && $lookahead5 == '5'){
@@ -254,7 +254,7 @@ class QuickBibleCli{
 					{
 						$segment++;
 					}					
-					continue;
+					continue 2;
 				}
 				break;
 				case '}':
@@ -263,14 +263,14 @@ class QuickBibleCli{
 				$segment++;
 				$i++;
 
-					continue;
+					continue 2;
 				break;
 			}
 			if (isset($color_ary[$segment][$color])){
-				$color_ary[$segment][$color] .= $text{$i};
+				$color_ary[$segment][$color] .= $text[$i];
 			}
 			else{
-				$color_ary[$segment][$color] = $text{$i};
+				$color_ary[$segment][$color] = $text[$i];
 			}
 		}
 
@@ -421,10 +421,10 @@ class QuickBibleCli{
 
 	public static function getAbbr($b){
 		$bk = self::$bible_abbr[$b];
-		if (!is_numeric($bk{0})){
-			$bk{1} = strtolower($bk{1});
+		if (!is_numeric($bk[0])){
+			$bk[1] = strtolower($bk[1]);
 		}
-		$bk{2} = strtolower($bk{2});
+		$bk[2] = strtolower($bk[2]);
 		return $bk;
 	}
 
